@@ -30,6 +30,12 @@
 	<div class="container">
 		<h1 class="header">TO-DOS</h1>
 		<div class="row">
+			<div class="input-field col s12">
+				<input onkeydown="getPostSearch(this)" id="buscarTitulo" type="text" class="validate">
+				<label for="buscarTitulo">Buscar por Título</label>
+			</div>
+		</div>
+		<div class="row">
 			<table cellpadding="1" cellspacing="1" class="table table-hover" id="myTable">
 				<thead>
 				  <tr>
@@ -54,8 +60,6 @@
 			getPost();
 		});
 
-		//var btn = document.getElementById("btn").addEventListener("click", getPost);
-		var con = 0;
 		var div = document.getElementById("cardDiv");
 		
 		function getPost() {
@@ -65,18 +69,54 @@
 			})
 			.then((post) => {
 				for (let index = 0; index < 200; index++) {
-					let completed = post[con].completed ? 'sim' : 'não';
+					let completed = post[index].completed ? 'sim' : 'não';
 					div.innerHTML += `
 						<tr>
-							<td>${post[con].userId}</td>
-							<td>${post[con].id}</td>
-							<td>${post[con].title}</td>
+							<td>${post[index].userId}</td>
+							<td>${post[index].id}</td>
+							<td>${post[index].title}</td>
 							<td>${completed}</td>
 						</tr>
 					`
-					con = con + 1;
 				}
 			}).then(() => {
+				$('#myTable').pageMe({
+				  pagerSelector: '#myPager',
+				  activeColor: 'green',
+				  prevText: 'Anterior',
+				  nextText: 'Seguinte',
+				  showPrevNext: true,
+				  hidePageNumbers: false,
+				  perPage: 10
+				});
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+		}
+
+		function getPostSearch(stringBusca) {
+			fetch('https://jsonplaceholder.typicode.com/todos')
+			.then((response) => {
+				return response.json();
+			})
+			.then((post) => {
+				div.innerHTML = ``
+				for (let index = 0; index < 200; index++) {
+					if ((post[index].title).includes(stringBusca.value)) {
+						let completed = post[index].completed ? 'sim' : 'não';
+						div.innerHTML += `
+							<tr>
+								<td>${post[index].userId}</td>
+								<td>${post[index].id}</td>
+								<td>${post[index].title}</td>
+								<td>${completed}</td>
+							</tr>
+						`
+					}
+				}
+			}).then(() => {
+				$('#myPager').empty();
 				$('#myTable').pageMe({
 				  pagerSelector: '#myPager',
 				  activeColor: 'green',
